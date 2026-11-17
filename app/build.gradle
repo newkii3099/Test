@@ -1,0 +1,133 @@
+plugins {
+    id 'com.android.application'
+    id 'com.google.gms.google-services'
+}
+
+def getBuildVersionCode() {
+    def runNumber = System.getenv("GITHUB_RUN_NUMBER")
+    if (runNumber != null && runNumber.isInteger()) {
+        return Integer.parseInt(runNumber) + 4234641
+    }
+    return 4234641
+}
+
+def getBuildVersionName() {
+    def runNumber = System.getenv("GITHUB_RUN_NUMBER") ?: "1"
+    return "2.11.311.${runNumber}"
+}
+
+android {
+    compileSdk 36
+
+    namespace 'com.kurdish.roleplay'
+
+    defaultConfig {
+        applicationId "com.kurdish.roleplay"
+        minSdk 28
+        targetSdk 36
+        versionCode getBuildVersionCode()
+        versionName getBuildVersionName()
+
+        multiDexEnabled true
+
+        ndk {
+            abiFilters 'arm64-v8a'
+        }
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    signingConfigs {
+        release {
+            storeFile file('release.keystore')
+            storePassword 'testreleasekey'
+            keyAlias 'release'
+            keyPassword 'testreleasekey'
+            v1SigningEnabled true
+            v2SigningEnabled true
+        }
+    }
+
+    packaging {
+        jniLibs {
+            pickFirsts += ['**/*.so']
+            excludes += ['META-INF/*']
+        }
+        resources {
+            excludes += ['META-INF/*']
+        }
+    }
+
+    ndkVersion '26.2.11394342'
+
+    externalNativeBuild {
+        cmake {
+            path "src/main/cpp/CMakeLists.txt"
+        }
+    }
+
+    buildTypes {
+        debug {
+            debuggable true
+            jniDebuggable true
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
+            ndk {
+                debugSymbolLevel 'FULL'
+            }
+        }
+        release {
+            signingConfig signingConfigs.release
+            ndk {
+                debugSymbolLevel 'FULL'
+            }
+
+            debuggable false
+            jniDebuggable false
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    lintOptions {
+        checkReleaseBuilds false
+        abortOnError false
+    }
+    buildFeatures {
+        prefab true
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: "libs", include: ["*.jar"])
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation "com.google.android.material:material:1.9.0"
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.navigation:navigation-fragment:2.7.2'
+    implementation 'androidx.navigation:navigation-ui:2.7.2'
+    implementation 'androidx.core:core-ktx:1.12.0'
+    implementation 'com.google.android.play:asset-delivery:2.3.0'
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    implementation 'com.android.volley:volley:1.2.1'
+    implementation 'com.intuit.sdp:sdp-android:1.1.0'
+    implementation 'com.google.firebase:firebase-analytics:21.2.0'
+    implementation 'com.google.firebase:firebase-crashlytics-ndk:18.3.5'
+    implementation platform('com.google.firebase:firebase-bom:30.1.0')
+    implementation 'com.google.firebase:firebase-messaging:23.1.1'
+    implementation 'com.google.firebase:firebase-config'
+    implementation "androidx.datastore:datastore-preferences:1.0.0"
+    implementation "androidx.datastore:datastore-core:1.0.0"
+    implementation 'org.ini4j:ini4j:0.5.4'
+    implementation 'com.github.bumptech.glide:glide:4.15.1'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.15.1'
+    implementation("androidx.lifecycle:lifecycle-process:2.6.2")
+    implementation 'com.bytedance.android:shadowhook:1.0.9'
+    implementation 'androidx.multidex:multidex:2.0.1'
+    implementation 'com.github.amitshekhariitbhu:PRDownloader:1.0.2'
+}
